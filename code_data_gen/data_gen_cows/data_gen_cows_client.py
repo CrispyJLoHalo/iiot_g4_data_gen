@@ -1,42 +1,29 @@
 import json
-#import shapely
-#Vlt noch import requests um Felder & Movement Patterns per HTTP zu managen
+from shapely.geometry import shape, Point
 
 class Cow:
-    DEFAULT_LAT = 0.
-    DEFAULT_LON = 0.
-    def __init__(self, id, position_lat=None, position_lon=None, movement_pattern):
+    def __init__(self, id, movement_pattern):
         self.id =  id
-        self.position_lat = position_lat if position_lat is not None else DEFAULT_LAT
-        self.position_lon = position_lon if position_lon is not None else DEFAULT_LON
-        self.pattern = movement_pattern #geoJSON File
+        with open(movement_pattern, "r") as read_file:
+            self.decoded_movement = json.load(read_file)
+        self.movement_points = []
+        self.movement_coords = self.decoded_movement['features'][0]['geometry']['coordinates']
+        for tuple in self.movement_coords:
+            self.movement_points.append(Point(tuple[0],tuple[1]))
 
-    def get_cow_location(self):
-        return self.position_lat, self.position_lon
+def is_in_pasture(point, fence):
+    for feature in fence['features']:
+        polygon = shape(feature['geometry'])
+        if polygon.contains(point):
+            print('In Pasture!', point)
+        else:
+            print('Not in pasture!', point)
 
-'''
-TODO Methode die die Position ändert und returned
-Festgelegte Bewegungsmuster mit GeoJSOn Lines -> Von position zu position (via Schleife) 
-Beispiel Code für Check if in Polygon
-import json
-from shapely.geometry import shape, Point
-# depending on your version, use: from shapely.geometry import shape, Point
-
-# load GeoJSON file containing sectors
-with open('sectors.json') as f:
-    js = json.load(f)
-
-# construct point based on lon/lat returned by geocoder
-point = Point(-122.7924463, 45.4519896)
-
-# check each polygon to see if it contains the point
-for feature in js['features']:
-    polygon = shape(feature['geometry'])
-    if polygon.contains(point):
-        print 'Found containing polygon:', feature 
-'''
-
-#Lesen des GEOJson Files für die Grenzen und Speicherung in einer Variabel
-#Sollte vlt ein Polygon anstatt LineString sein
-with open("boundaries_pasture.geojson", "r") as read_file:
+#Lesen der Grenzen des virtuellen Zauns
+with open("./code_data_gen/data_gen_cows/geodata/boundaries_pasture.json", "r") as read_file:
     decoded_boundaries_pasture = json.load(read_file)
+
+cow_1 = Cow(1, "code_data_gen\data_gen_cows\geodata\cow_1_movingpattern.json")
+
+for point in cow_1.movement_points:
+    is_in_pasture(point, decoded_boundaries_pasture)
