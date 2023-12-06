@@ -1,0 +1,3 @@
+#Data Gen for Livestock Tracking/ Virtual Fencing
+Virtual fencing is a very interesting use case for IIoT in Agriculture. Needed for virtual fencing are GPS-trackers for the livestock and a geographical boundary, set by the farmer.  
+The GPS data shall be transmitted via MQTT to retrieve real-time spatial information about the livestock. This data is then used to check if the animal is inside the set boundary. If this is false, alarms and other signals will be triggered/sent. 
