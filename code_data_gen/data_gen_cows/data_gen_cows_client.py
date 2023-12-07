@@ -29,13 +29,20 @@ def get_longest_movement(list_cows):
 
 def pub_gps_data(cow, point, check):
     if check:
-        msg = "Cow %s \nLon: %s \nLat: %s" % (cow.id, point.y, point.x)
+        msg_txt = "Cow %s \nLon: %s \nLat: %s" % (cow.id, point.y, point.x)
+        msg_data = tuple(point.x, point.y)
     else:
-        msg = "No GPS Data for Cow " + str(cow.id)
-    mqtt_client_gps.publish(mqtt_pub_topic_gps,
-                            payload=msg,
+        msg_txt = "No GPS Data for Cow " + str(cow.id)
+        msg_data = None
+    mqtt_client_gps_txt.publish(mqtt_pub_topic_gps,
+                            payload=msg_txt,
                             qos=2,
                             retain=False)
+    mqtt_client_gps_data.publish(mqtt_pub_topic_gps,
+                            payload=msg_data,
+                            qos=2,
+                            retain=False)
+    return msg_txt, msg_data
 
 def pub_alarm(cow, point, fence):
     if is_in_pasture(point, fence):
@@ -55,7 +62,8 @@ def pub_alarm(cow, point, fence):
                               payload=msg_bool,
                               qos=2,
                               retain=False)
-    
+    return msg_txt, msg_bool
+
 def pub_all(list_cows, fence):
     while True:
         for i in range(get_longest_movement(list_cows)):
@@ -64,10 +72,26 @@ def pub_all(list_cows, fence):
                 if check:
                     pub_alarm(cow, cow.movement_points[i], fence)
                     pub_gps_data(cow, cow.movement_points[i], check)
+                    print(create_json_payload(cow, cow.movement_points[i], check, fence))
                 else: 
                     pub_alarm(cow, cow.movement_points[i], fence)
                     pub_gps_data(cow, cow.movement_points[i], check)
+                    print(create_json_payload(cow, cow.movement_points[i], check, fence))
             time.sleep(5)
+
+#TODO Include JSON Payload in MQTT transmission
+
+def create_json_payload(cow, point, check, fence):
+    alarm_txt, alarm_bool = pub_alarm(cow, point, fence)
+    gps_txt, gps_data = pub_gps_data(cow, point, check)
+    dict_json = {
+        "alarm_txt":alarm_txt,
+        "alarm_bool":alarm_bool,
+        "gps_txt":gps_txt,
+        "gps_data":gps_data
+    }
+    json_payload = json.dumps(dict_json, indent=4)
+    return json_payload
 
 #Definition MQTT Information
 mqtt_broker_adr = "wi-vm162-01.rz.fh-ingolstadt.de"
@@ -76,13 +100,16 @@ mqtt_pub_topic_gps = "group4/livestock/gps_data"
 mqtt_pub_topic_alarm_txt = "group4/livestock/alarms/txt"
 mqtt_pub_topic_alarm_bool = "group4/livestock/alarms/bool"
 #Clients Erstellen
-mqtt_client_gps = mqtt.Client()
+mqtt_client_gps_txt = mqtt.Client()
+mqtt_client_gps_data = mqtt.Client()
 mqtt_client_alarm_txt = mqtt.Client()
 mqtt_client_alarm_bool = mqtt.Client()
 #Clients Verbinden
-mqtt_client_gps.connect(host=mqtt_broker_adr, port=mqtt_broker_port)
+mqtt_client_gps_txt.connect(host=mqtt_broker_adr, port=mqtt_broker_port)
+mqtt_client_gps_data.connect(host=mqtt_broker_adr, port=mqtt_broker_port)
 mqtt_client_alarm_txt.connect(host=mqtt_broker_adr, port=mqtt_broker_port)
 mqtt_client_alarm_bool.connect(host=mqtt_broker_adr, port=mqtt_broker_port)
+
 
 #Lesen der Grenzen des virtuellen Zauns
 with open("./code_data_gen/data_gen_cows/geodata/boundaries_pasture.json", "r") as read_file:
