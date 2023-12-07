@@ -1,5 +1,6 @@
 import json
 from shapely.geometry import shape, Point
+import time
 
 class Cow:
     def __init__(self, id, movement_pattern):
@@ -25,5 +26,7 @@ with open("./code_data_gen/data_gen_cows/geodata/boundaries_pasture.json", "r") 
 
 cow_1 = Cow(1, "code_data_gen\data_gen_cows\geodata\cow_1_movingpattern.json")
 
-for point in cow_1.movement_points:
-    is_in_pasture(point, decoded_boundaries_pasture)
+while True:
+    for point in cow_1.movement_points:
+        is_in_pasture(point, decoded_boundaries_pasture)
+        time.sleep(3)
