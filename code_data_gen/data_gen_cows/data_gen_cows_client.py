@@ -38,6 +38,41 @@ def pub_alarm(cow, point, fence):
                               qos=2,
                               retain=False)
 
+def pub_no_data_alarm(cow):
+    msg = "No Alarm Data for Cow " + str(cow.id)
+    mqtt_client_alarm.publish(mqtt_pub_topic_alarm,
+                              payload=msg,
+                              qos=2,
+                              retain=False)
+    
+def pub_no_data_gps(cow):
+    msg = "No GPS Data for Cow " + str(cow.id)
+    mqtt_client_alarm.publish(mqtt_pub_topic_gps,
+                              payload=msg,
+                              qos=2,
+                              retain=False)
+
+def pub_all(list_cows, fence):
+    while True:
+        for i in range(get_longest_movement(list_cows)):
+            for cow in list_cows:
+                if i < len(cow.movement_points):
+                    pub_alarm(cow, cow.movement_points[i], fence)
+                else: 
+                    pub_no_data_alarm(cow)
+            for cow in list_cows:
+                if i < len(cow.movement_points):
+                    pub_gps_data(cow, cow.movement_points[i])
+                else:
+                    pub_no_data_gps(cow)
+            time.sleep(5)
+
+def get_longest_movement(list_cows):
+    all_coords = []
+    for cow in list_cows:
+        all_coords.append(cow.movement_points)
+    return len(max(all_coords, key=len))
+
 #Definition MQTT Information
 mqtt_broker_adr = "wi-vm162-01.rz.fh-ingolstadt.de"
 mqtt_broker_port = 1870
@@ -56,12 +91,5 @@ with open("./code_data_gen/data_gen_cows/geodata/boundaries_pasture.json", "r") 
 
 cow_1 = Cow(1, "code_data_gen\data_gen_cows\geodata\cow_1_movingpattern.json")
 cow_2 = Cow(2, "code_data_gen\data_gen_cows\geodata\cow_2_movingpattern.json")
-
 list_cows = [cow_1, cow_2]
-while True:
-    for i in range(len(cow_1.movement_points)):
-        for cow in list_cows:
-            pub_alarm(cow, cow.movement_points[i], decoded_boundaries_pasture)
-        for cow in list_cows:
-            pub_gps_data(cow, cow.movement_points[i])
-        time.sleep(5)
+pub_all(list_cows, decoded_boundaries_pasture)
