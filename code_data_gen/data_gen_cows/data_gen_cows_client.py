@@ -70,8 +70,6 @@ def pub_all(list_cows, fence):
                             retain=False)
             time.sleep(5)
 
-#TODO Include JSON Payload in MQTT transmission
-
 def create_json_payload(cow, point, check, fence):
     alarm_txt, alarm_bool = pub_alarm(cow, point, fence)
     gps_txt, gps_data = pub_gps_data(cow, point, check)
