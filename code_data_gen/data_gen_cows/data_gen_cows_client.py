@@ -32,12 +32,13 @@ def get_longest_movement(list_cows):
 
 def pub_gps_data(cow, point, check):
     if check:
-        msg_txt = "Cow %s \nLon: %s \nLat: %s" % (cow.id, point.y, point.x)
-        msg_data = str(point.x) + "," + str(point.y)
+        msg_txt = "Cow %s \nLon: %s \nLat: %s" % (cow.id, point.x, point.y)
+        msg_data_lon = point.x
+        msg_data_lat = point.y
     else:
         msg_txt = "No GPS Data for Cow " + str(cow.id)
         msg_data = None
-    return msg_txt, msg_data
+    return msg_txt, msg_data_lon, msg_data_lat
 
 def pub_alarm(cow, point, fence):
     if is_in_pasture(point, fence):
@@ -60,25 +61,26 @@ def pub_all(list_cows, fence):
                     payload_json = create_json_payload(cow, cow.movement_points[i], check, fence)
                     mqtt_client_cow_data.publish(cow.topic,
                             payload=payload_json,
-                            qos=2,
+                            qos=0,
                             retain=False)
                 else: 
                     payload_json = create_json_payload(cow, cow.movement_points[i], check, fence)
                     mqtt_client_cow_data.publish(cow.topic,
                             payload=payload_json,
-                            qos=2,
+                            qos=0,
                             retain=False)
-            time.sleep(5)
+            time.sleep(3)
 
 def create_json_payload(cow, point, check, fence):
     alarm_txt, alarm_bool = pub_alarm(cow, point, fence)
-    gps_txt, gps_data = pub_gps_data(cow, point, check)
+    gps_txt, gps_data_lon, gps_data_lat = pub_gps_data(cow, point, check)
     dict_json = {
         "id":cow.id,
         "alarm_txt":alarm_txt,
         "alarm_bool":alarm_bool,
         "gps_txt":gps_txt,
-        "gps_data":gps_data
+        "gps_data_lon":gps_data_lon,
+        "gps_data_lat":gps_data_lat
     }
     json_payload = json.dumps(dict_json, indent=4)
     return json_payload
