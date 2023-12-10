@@ -96,7 +96,7 @@ mqtt_client_cow_data.connect(host=mqtt_broker_adr, port=mqtt_broker_port)
 #Lesen der Grenzen des virtuellen Zauns
 with open("/app/geodata/boundaries_pasture.json", "r") as read_file:
     decoded_boundaries_pasture = json.load(read_file)
-
+                             
 cow_1 = Cow(1, "/app/geodata/cow_1_movingpattern.json")
 cow_2 = Cow(2, "/app/geodata/cow_2_movingpattern.json")
 list_cows = [cow_1, cow_2]
