@@ -99,5 +99,7 @@ with open("/app/geodata/boundaries_pasture.json", "r") as read_file:
                              
 cow_1 = Cow(1, "/app/geodata/cow_1_movingpattern.json")
 cow_2 = Cow(2, "/app/geodata/cow_2_movingpattern.json")
-list_cows = [cow_1, cow_2]
+cow_3 = Cow(3, "/app/geodata/cow_3_movingpattern.json")
+cow_4 = Cow(4, "/app/geodata/cow_4_movingpattern.json")
+list_cows = [cow_1, cow_2, cow_3, cow_4]
 pub_all(list_cows, decoded_boundaries_pasture)
