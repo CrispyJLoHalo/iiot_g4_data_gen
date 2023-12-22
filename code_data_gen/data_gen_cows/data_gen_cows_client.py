@@ -15,6 +15,8 @@ class Cow:
             self.movement_points.append(Point(tuple[0],tuple[1]))
         #Create Topic for every cow based on its ID
         self.topic = "group4/livestock/cows/" + str(self.id)
+        self.topic_escaped = self.topic + "/escaped"
+        self.counter = 0
 
 def is_in_pasture(point, fence):
     for feature in fence['features']:
@@ -23,6 +25,24 @@ def is_in_pasture(point, fence):
             return True
         else:
             return False
+
+def escaped(cow):
+    if cow.counter < 3:
+        return False
+    else:
+        return True
+
+def up_cow_counter (cow):
+    cow.counter = cow.counter + 1
+
+def reset_cow_counter (cow):
+    cow.counter = 0
+
+def check_next_move(cow, i, fence):
+    if is_in_pasture(point=cow.movement_points[i+1], fence=fence):
+        reset_cow_counter(cow)
+    elif is_in_pasture(point=cow.movement_points[i+1], fence=fence) == False:
+        up_cow_counter(cow)
 
 def get_longest_movement(list_cows):
     all_coords = []
@@ -44,9 +64,11 @@ def pub_alarm(cow, point, fence):
     if is_in_pasture(point, fence):
         msg_txt = "Cow %s is in the pasture" % cow.id
         msg_bool = True
+        reset_cow_counter(cow)
     elif is_in_pasture(point, fence) is False:
         msg_txt = "Cow %s is NOT in the pasture!" % cow.id
         msg_bool = False
+        up_cow_counter(cow)
     else:
         msg_txt = "No Alarm Data for Cow " + str(cow.id)
         msg_bool = None
@@ -56,31 +78,40 @@ def pub_all(list_cows, fence):
     while True:
         for i in range(get_longest_movement(list_cows)):
             for cow in list_cows:
-                check = i<len(cow.movement_points)
-                if check:
-                    payload_json = create_json_payload(cow, cow.movement_points[i], check, fence)
-                    mqtt_client_cow_data.publish(cow.topic,
-                            payload=payload_json,
-                            qos=0,
-                            retain=False)
-                else: 
-                    payload_json = create_json_payload(cow, cow.movement_points[i], check, fence)
-                    mqtt_client_cow_data.publish(cow.topic,
-                            payload=payload_json,
-                            qos=0,
-                            retain=False)
+                if escaped(cow) == False:
+                    check = i<len(cow.movement_points)
+                    if check:
+                        payload_json = create_json_payload(cow, cow.movement_points[i], check, fence)
+                        mqtt_client_cow_data.publish(cow.topic,
+                                payload=payload_json,
+                                qos=0,
+                                retain=False)
+                    else: 
+                        payload_json = create_json_payload(cow, cow.movement_points[i], check, fence)
+                        mqtt_client_cow_data.publish(cow.topic,
+                                payload=payload_json,
+                                qos=0,
+                                retain=False)
+                elif escaped(cow):
+                    mqtt_client_cow_data.publish(topic=cow.topic_escaped,
+                                                 payload="Cow %s has escaped!!" % cow.id,
+                                                 qos=0,
+                                                 retain=False)
+                    check_next_move(cow, i, fence)
             time.sleep(3)
 
 def create_json_payload(cow, point, check, fence):
     alarm_txt, alarm_bool = pub_alarm(cow, point, fence)
     gps_txt, gps_data_lon, gps_data_lat = pub_gps_data(cow, point, check)
+    send_message = escaped(cow)
     dict_json = {
         "id":cow.id,
         "alarm_txt":alarm_txt,
         "alarm_bool":alarm_bool,
         "gps_txt":gps_txt,
         "gps_data_lon":gps_data_lon,
-        "gps_data_lat":gps_data_lat
+        "gps_data_lat":gps_data_lat,
+        "send_message":send_message
     }
     json_payload = json.dumps(dict_json, indent=4)
     return json_payload
