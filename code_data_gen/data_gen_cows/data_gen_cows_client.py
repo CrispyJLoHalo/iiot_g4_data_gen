@@ -27,6 +27,7 @@ def is_in_pasture(point, fence):
             return False
 
 def escaped(cow):
+    # Used to check if a cow has escaped and to consequently send a different MQTT-Message
     if cow.counter < 3:
         return False
     else:
@@ -39,18 +40,21 @@ def reset_cow_counter (cow):
     cow.counter = 0
 
 def check_next_move(cow, i, fence):
+    # Used to prevent stopping of simulation, when cow is 'escaped'
     if is_in_pasture(point=cow.movement_points[i+1], fence=fence):
         reset_cow_counter(cow)
     elif is_in_pasture(point=cow.movement_points[i+1], fence=fence) == False:
         up_cow_counter(cow)
 
 def get_longest_movement(list_cows):
+    # Used to prevent a list index error in pub_all
     all_coords = []
     for cow in list_cows:
         all_coords.append(cow.movement_points)
     return len(max(all_coords, key=len))
 
 def pub_gps_data(cow, point, check):
+    # Extract & return the location data for a specific cow at a specific point
     if check:
         msg_txt = "Cow %s \nLon: %s \nLat: %s" % (cow.id, point.x, point.y)
         msg_data_lon = point.x
@@ -61,6 +65,7 @@ def pub_gps_data(cow, point, check):
     return msg_txt, msg_data_lon, msg_data_lat
 
 def pub_alarm(cow, point, fence):
+    # Depending on if the cow is in the pasture return a text & boolean describing it's status 
     if is_in_pasture(point, fence):
         msg_txt = "Cow %s is in the pasture" % cow.id
         msg_bool = True
@@ -101,6 +106,7 @@ def pub_all(list_cows, fence):
             time.sleep(3)
 
 def create_json_payload(cow, point, check, fence):
+    # Collect and concatenate all relevant data for MQTT Submission in JSON Format 
     alarm_txt, alarm_bool = pub_alarm(cow, point, fence)
     gps_txt, gps_data_lon, gps_data_lat = pub_gps_data(cow, point, check)
     send_message = escaped(cow)
