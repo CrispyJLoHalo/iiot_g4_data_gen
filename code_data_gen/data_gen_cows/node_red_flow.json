@@ -1,0 +1,792 @@
+[
+    {
+        "id": "b4fdf3194cbae1f7",
+        "type": "tab",
+        "label": "Jonah",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "035f0ccdba503aa9",
+        "type": "mqtt in",
+        "z": "b4fdf3194cbae1f7",
+        "name": "data_cow_1",
+        "topic": "group4/livestock/cows/1",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "10f4f01e7a8f899b",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 110,
+        "y": 60,
+        "wires": [
+            [
+                "1e27125cf48d6fcf",
+                "811b54d0353667a5",
+                "edd8723976a8948a"
+            ]
+        ]
+    },
+    {
+        "id": "edd8723976a8948a",
+        "type": "debug",
+        "z": "b4fdf3194cbae1f7",
+        "name": "Print Cow Data",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 440,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "1e27125cf48d6fcf",
+        "type": "function",
+        "z": "b4fdf3194cbae1f7",
+        "name": "Get GPS Data",
+        "func": "// Function Node\nvar receivedPayload = msg.payload;\n\nvar longitude = receivedPayload.gps_data_lon;\nvar latitude = receivedPayload.gps_data_lat;\nvar id = receivedPayload.id\nvar label = \"Cow \" + receivedPayload.id\n\n\nmsg.payload = {\n    lat: latitude,\n    lon: longitude,\n    name: id,\n    icon: \":cow2:\",\n    color: \"#000\",\n    label:label\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 140,
+        "wires": [
+            [
+                "a7e0371cc78b4c65"
+            ]
+        ]
+    },
+    {
+        "id": "88912b7fdb138c22",
+        "type": "mqtt in",
+        "z": "b4fdf3194cbae1f7",
+        "name": "data_cow_2",
+        "topic": "group4/livestock/cows/2",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "10f4f01e7a8f899b",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 110,
+        "y": 280,
+        "wires": [
+            [
+                "0e987d4cfd092f4e",
+                "ed52c329fd454072",
+                "1d82923d3bd6ce52"
+            ]
+        ]
+    },
+    {
+        "id": "1d82923d3bd6ce52",
+        "type": "debug",
+        "z": "b4fdf3194cbae1f7",
+        "name": "Print Cow Data",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 440,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "0e987d4cfd092f4e",
+        "type": "function",
+        "z": "b4fdf3194cbae1f7",
+        "name": "Get GPS Data",
+        "func": "// Function Node\nvar receivedPayload = msg.payload;\n\nvar longitude = receivedPayload.gps_data_lon;\nvar latitude = receivedPayload.gps_data_lat;\nvar id = receivedPayload.id\nvar label = \"Cow \" + receivedPayload.id\n\nmsg.payload = {\n    lat: latitude,\n    lon: longitude,\n    name: id,\n    icon: \":cow2:\",\n    color: \"#000\",\n    label: label\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 360,
+        "wires": [
+            [
+                "a7e0371cc78b4c65"
+            ]
+        ]
+    },
+    {
+        "id": "ed52c329fd454072",
+        "type": "function",
+        "z": "b4fdf3194cbae1f7",
+        "name": "Get in Pasture",
+        "func": "var receivedPayload = msg.payload;\n\nvar bool_alarm = receivedPayload.alarm_bool\nvar cow_id = receivedPayload.id\n\nif (bool_alarm == true){\n    msg.payload = \"Ok\"\n}else{\n    msg.payload = \"Out of pasture!\"\n}\nreturn msg",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 320,
+        "wires": [
+            [
+                "b66c035ea8d3795d"
+            ]
+        ]
+    },
+    {
+        "id": "f73bd65b42d7c8d0",
+        "type": "function",
+        "z": "b4fdf3194cbae1f7",
+        "name": "Insert Boundary",
+        "func": "msg.payload = {\n    \"name\": \"Fence\",\n    \"layer\": \"Lines\",\n    \"color\": \"#FF0000\",\n    \"weight\": \"2\",\n    \"dashArray\": \"0 0\",\n    \"fillOpacity\":\"0.01\",\n    \"tooltip\":\"Virtual Fence\",\n    \"geojson\": {\n        \"type\": \"FeatureCollection\",\n        \"features\": [{\n          \"type\": \"Feature\",\n          \"properties\": {},\n          \"geometry\": {\n            \"coordinates\": [\n              [[\n                11.539366602465293,\n                48.819345979575786\n              ],\n              [\n                11.539469313912832,\n                48.819272306880094\n              ],\n              [\n                11.540118160267923,\n                48.81804402278266\n              ],\n              [\n                11.541763449237976,\n                48.818322487343835\n              ],\n              [\n                11.540824939332822,\n                48.81999705666877\n              ],\n              [\n                11.539366602465293,\n                48.819345979575786\n              ]\n            ]\n          ],\n        \"type\": \"Polygon\"\n        }\n      }\n    ]\n  },\n  clickable: true\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1440,
+        "y": 460,
+        "wires": [
+            [
+                "a7e0371cc78b4c65"
+            ]
+        ]
+    },
+    {
+        "id": "9e760eb4925b164b",
+        "type": "inject",
+        "z": "b4fdf3194cbae1f7",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "00 12 * * *",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 1430,
+        "y": 400,
+        "wires": [
+            [
+                "f73bd65b42d7c8d0"
+            ]
+        ]
+    },
+    {
+        "id": "a7e0371cc78b4c65",
+        "type": "ui_worldmap",
+        "z": "b4fdf3194cbae1f7",
+        "group": "d6f76a8b.7d3598",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "lat": "48.819",
+        "lon": "11.54052",
+        "zoom": "17",
+        "layer": "EsriS",
+        "cluster": "",
+        "maxage": "",
+        "usermenu": "hide",
+        "layers": "hide",
+        "panit": "false",
+        "panlock": "false",
+        "zoomlock": "false",
+        "hiderightclick": "true",
+        "coords": "deg",
+        "showgrid": "true",
+        "showruler": "false",
+        "allowFileDrop": "false",
+        "path": "/worldmap/jonah",
+        "overlist": "DR,CO,RA,DN,HM",
+        "maplist": "EsriS",
+        "mapname": "",
+        "mapurl": "",
+        "mapopt": "",
+        "mapwms": false,
+        "x": 1460,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "811b54d0353667a5",
+        "type": "function",
+        "z": "b4fdf3194cbae1f7",
+        "name": "Get in Pasture",
+        "func": "var receivedPayload = msg.payload;\n\nvar bool_alarm = receivedPayload.alarm_bool\n\nif (bool_alarm == true){\n    msg.payload = \"Ok\"\n}else{\n    msg.payload = \"Out of pasture!\"\n}\nreturn msg",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 100,
+        "wires": [
+            [
+                "43fc3b989f3a2682"
+            ]
+        ]
+    },
+    {
+        "id": "b66c035ea8d3795d",
+        "type": "ui_text",
+        "z": "b4fdf3194cbae1f7",
+        "group": "9b24e54460114c6a",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "Print Status 2",
+        "label": "Cow 2:",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 660,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "43fc3b989f3a2682",
+        "type": "ui_text",
+        "z": "b4fdf3194cbae1f7",
+        "group": "9b24e54460114c6a",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Print Status 1",
+        "label": "Cow 1:",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 660,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "117201fb18c08977",
+        "type": "mqtt in",
+        "z": "b4fdf3194cbae1f7",
+        "name": "data_cow_3",
+        "topic": "group4/livestock/cows/3",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "10f4f01e7a8f899b",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 110,
+        "y": 500,
+        "wires": [
+            [
+                "8bfc5c51cb0f6753",
+                "65a5363e67544827",
+                "4472cb2dae1d11b3"
+            ]
+        ]
+    },
+    {
+        "id": "4472cb2dae1d11b3",
+        "type": "debug",
+        "z": "b4fdf3194cbae1f7",
+        "name": "Print Cow Data",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 440,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "8bfc5c51cb0f6753",
+        "type": "function",
+        "z": "b4fdf3194cbae1f7",
+        "name": "Get GPS Data",
+        "func": "// Function Node\nvar receivedPayload = msg.payload;\n\nvar longitude = receivedPayload.gps_data_lon;\nvar latitude = receivedPayload.gps_data_lat;\nvar id = receivedPayload.id\nvar label = \"Cow \" + receivedPayload.id\n\nmsg.payload = {\n    lat: latitude,\n    lon: longitude,\n    name: id,\n    icon: \":cow2:\",\n    color: \"#000\",\n    label: label\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 580,
+        "wires": [
+            [
+                "a7e0371cc78b4c65"
+            ]
+        ]
+    },
+    {
+        "id": "65a5363e67544827",
+        "type": "function",
+        "z": "b4fdf3194cbae1f7",
+        "name": "Get in Pasture",
+        "func": "var receivedPayload = msg.payload;\n\nvar bool_alarm = receivedPayload.alarm_bool\nvar cow_id = receivedPayload.id\n\nif (bool_alarm == true){\n    msg.payload = \"Ok\"\n}else{\n    msg.payload = \"Out of pasture!\"\n}\nreturn msg",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 540,
+        "wires": [
+            [
+                "08ab0f4f090379ba"
+            ]
+        ]
+    },
+    {
+        "id": "08ab0f4f090379ba",
+        "type": "ui_text",
+        "z": "b4fdf3194cbae1f7",
+        "group": "9b24e54460114c6a",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "Print Status 3",
+        "label": "Cow 3:",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 660,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "6d89503959199407",
+        "type": "mqtt in",
+        "z": "b4fdf3194cbae1f7",
+        "name": "data_cow_4",
+        "topic": "group4/livestock/cows/4",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "10f4f01e7a8f899b",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 110,
+        "y": 720,
+        "wires": [
+            [
+                "31423b879bae81a0",
+                "5e5dc3b6915dc909",
+                "7cc5880998ebecef"
+            ]
+        ]
+    },
+    {
+        "id": "7cc5880998ebecef",
+        "type": "debug",
+        "z": "b4fdf3194cbae1f7",
+        "name": "Print Cow Data",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 440,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "31423b879bae81a0",
+        "type": "function",
+        "z": "b4fdf3194cbae1f7",
+        "name": "Get GPS Data",
+        "func": "// Function Node\nvar receivedPayload = msg.payload;\n\nvar longitude = receivedPayload.gps_data_lon;\nvar latitude = receivedPayload.gps_data_lat;\nvar id = receivedPayload.id\nvar label = \"Cow \" + receivedPayload.id\n\nmsg.payload = {\n    lat: latitude,\n    lon: longitude,\n    name: id,\n    icon: \":cow2:\",\n    color: \"#000\",\n    label: label\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 800,
+        "wires": [
+            [
+                "a7e0371cc78b4c65"
+            ]
+        ]
+    },
+    {
+        "id": "5e5dc3b6915dc909",
+        "type": "function",
+        "z": "b4fdf3194cbae1f7",
+        "name": "Get in Pasture",
+        "func": "var receivedPayload = msg.payload;\n\nvar bool_alarm = receivedPayload.alarm_bool\nvar cow_id = receivedPayload.id\n\nif (bool_alarm == true){\n    msg.payload = \"Ok\"\n}else{\n    msg.payload = \"Out of pasture!\"\n}\nreturn msg",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 760,
+        "wires": [
+            [
+                "2bbe17be95f0b9d9"
+            ]
+        ]
+    },
+    {
+        "id": "2bbe17be95f0b9d9",
+        "type": "ui_text",
+        "z": "b4fdf3194cbae1f7",
+        "group": "9b24e54460114c6a",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "name": "Print Status 4",
+        "label": "Cow 4:",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 660,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "1a55917f1c3c104c",
+        "type": "ui_button",
+        "z": "b4fdf3194cbae1f7",
+        "name": "",
+        "group": "9b24e54460114c6a",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Home",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "Home",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 90,
+        "y": 1020,
+        "wires": [
+            [
+                "7ceafe9df6f2d207"
+            ]
+        ]
+    },
+    {
+        "id": "7ceafe9df6f2d207",
+        "type": "ui_ui_control",
+        "z": "b4fdf3194cbae1f7",
+        "name": "",
+        "events": "all",
+        "x": 260,
+        "y": 1020,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1906bc81d54ed346",
+        "type": "mqtt in",
+        "z": "b4fdf3194cbae1f7",
+        "name": "",
+        "topic": "group4/livestock/cows/1/escaped",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "d2870059db534f18",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 170,
+        "y": 180,
+        "wires": [
+            [
+                "ae54863cd1534b18"
+            ]
+        ]
+    },
+    {
+        "id": "ae54863cd1534b18",
+        "type": "ui_toast",
+        "z": "b4fdf3194cbae1f7",
+        "position": "top right",
+        "displayTime": "5",
+        "highlight": "red",
+        "sendall": true,
+        "outputs": 0,
+        "ok": "OK",
+        "cancel": "",
+        "raw": false,
+        "className": "",
+        "topic": "",
+        "name": "",
+        "x": 450,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "410b811345fa19ed",
+        "type": "mqtt in",
+        "z": "b4fdf3194cbae1f7",
+        "name": "",
+        "topic": "group4/livestock/cows/2/escaped",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "d2870059db534f18",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 170,
+        "y": 400,
+        "wires": [
+            [
+                "853a94ac8a435d99"
+            ]
+        ]
+    },
+    {
+        "id": "853a94ac8a435d99",
+        "type": "ui_toast",
+        "z": "b4fdf3194cbae1f7",
+        "position": "top right",
+        "displayTime": "5",
+        "highlight": "red",
+        "sendall": true,
+        "outputs": 0,
+        "ok": "OK",
+        "cancel": "",
+        "raw": false,
+        "className": "",
+        "topic": "",
+        "name": "",
+        "x": 450,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "92bc6d59769ebbcc",
+        "type": "mqtt in",
+        "z": "b4fdf3194cbae1f7",
+        "name": "",
+        "topic": "group4/livestock/cows/3/escaped",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "d2870059db534f18",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 170,
+        "y": 620,
+        "wires": [
+            [
+                "fa427eefaa9bbf4f"
+            ]
+        ]
+    },
+    {
+        "id": "fa427eefaa9bbf4f",
+        "type": "ui_toast",
+        "z": "b4fdf3194cbae1f7",
+        "position": "top right",
+        "displayTime": "5",
+        "highlight": "red",
+        "sendall": true,
+        "outputs": 0,
+        "ok": "OK",
+        "cancel": "",
+        "raw": false,
+        "className": "",
+        "topic": "",
+        "name": "",
+        "x": 450,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "67d25222c3fd3959",
+        "type": "mqtt in",
+        "z": "b4fdf3194cbae1f7",
+        "name": "",
+        "topic": "group4/livestock/cows/4/escaped",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "d2870059db534f18",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 170,
+        "y": 840,
+        "wires": [
+            [
+                "20c2f935cea9cc0c"
+            ]
+        ]
+    },
+    {
+        "id": "20c2f935cea9cc0c",
+        "type": "ui_toast",
+        "z": "b4fdf3194cbae1f7",
+        "position": "top right",
+        "displayTime": "5",
+        "highlight": "red",
+        "sendall": true,
+        "outputs": 0,
+        "ok": "OK",
+        "cancel": "",
+        "raw": false,
+        "className": "",
+        "topic": "",
+        "name": "",
+        "x": 450,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "10f4f01e7a8f899b",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "wi-vm162-01.rz.fh-ingolstadt.de",
+        "port": "1870",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "d6f76a8b.7d3598",
+        "type": "ui_group",
+        "name": "Karte",
+        "tab": "d2a649dd.69614",
+        "order": 1,
+        "disp": true,
+        "width": 13,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "9b24e54460114c6a",
+        "type": "ui_group",
+        "name": "Status",
+        "tab": "d2a649dd.69614",
+        "order": 2,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "d2870059db534f18",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "wi-vm162-01.rz.fh-ingolstadt.de",
+        "port": "1870",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "d2a649dd.69614",
+        "type": "ui_tab",
+        "name": "Livestock",
+        "icon": "dashboard",
+        "order": 3,
+        "disabled": false,
+        "hidden": false
+    }
+]
